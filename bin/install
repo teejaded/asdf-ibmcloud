@@ -16,7 +16,6 @@ install() {
   version=$2
   install_path=$3
   bin_install_path="$install_path/bin"
-  binary_path="$bin_install_path/ibmcloud"
   download_url="$(get_download_url "$version")"
   tmp_download_dir="$(get_tmp_dir)"
   download_path="$tmp_download_dir/ibmcloud_${ASDF_INSTALL_VERSION}.tgz"
@@ -28,15 +27,32 @@ install() {
   mkdir -p "${bin_install_path}"
 
   echo "Cleaning previous binaries"
-  rm -f "$binary_path" 2>/dev/null || true
+  rm -f "$bin_install_path/*" 2>/dev/null || true
 
-  echo "Copying binary"
+  echo "Copying binaries"
   tar -zxf "${download_path}" --directory "$tmp_download_dir"
-  cp -p "${tmp_download_dir}/IBM_Cloud_CLI/ibmcloud" "${bin_install_path}"
+  local files
+  files=$(find "${tmp_download_dir}/$(get_file_name)" -type f | grep -v install)
+  for f in $files; do
+    cp -p "$f" "${bin_install_path}"
+  done
+
+  echo "Creating symlinks"
+  [ -f "${bin_install_path}/bluemix" ] && ln -sf "${bin_install_path}/bluemix" "${bin_install_path}/ibmcloud"
+  ln -sf "${bin_install_path}/ibmcloud" "${bin_install_path}/bx"
+  ln -sf "${bin_install_path}/ibmcloud" "${bin_install_path}/ic"
+}
+
+get_file_name() {
+  if [ "Linux" = "$(uname)" ]; then
+    echo "Bluemix_CLI/bin"
+  else
+    echo "IBM_Cloud_CLI"
+  fi
 }
 
 get_tmp_dir() {
-  if [ "${TMPDIR:-}" = "" ]; then
+  if [ -z "${TMPDIR:-}" ]; then
     mktemp -d -t ibmcloud_XXXXXX
   else
     echo "$TMPDIR"
