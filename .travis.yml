@@ -8,4 +8,4 @@ script:
   - asdf plugin-test ibmcloud ./ 'ibmcloud --version'
 os:
   - osx
-
+  - linux
