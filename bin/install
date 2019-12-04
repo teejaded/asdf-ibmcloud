@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+[ -z "${ASDF_INSTALL_TYPE+x}" ] && echo "ASDF_INSTALL_TYPE is required" && exit 1
+[ -z "${ASDF_INSTALL_VERSION+x}" ] && echo "ASDF_INSTALL_VERSION is required" && exit 1
+[ -z "${ASDF_INSTALL_PATH+x}" ] && echo "ASDF_INSTALL_PATH is required" && exit 1
+
+install() {
+  local install_type version install_path bin_install_path binary_path \
+    download_url tmp_download_dir download_path
+
+  install_type=$1
+  [ "$install_type" != "version" ] && echo "intall type, $install_type, is not supported" && exit 1
+
+  version=$2
+  install_path=$3
+  bin_install_path="$install_path/bin"
+  binary_path="$bin_install_path/ibmcloud"
+  download_url="$(get_download_url)"
+  tmp_download_dir="$(get_tmp_dir)"
+  download_path="$tmp_download_dir/ibmcloud_${ASDF_INSTALL_VERSION}.tgz"
+
+  echo "Downloading ibmcloud from ${download_url} to ${download_path}"
+  curl -Lo "$download_path" "$download_url"
+
+  echo "Creating bin directory"
+  mkdir -p "${bin_install_path}"
+
+  echo "Cleaning previous binaries"
+  rm -f "$binary_path" 2>/dev/null || true
+
+  echo "Copying binary"
+  tar -zxf "${download_path}" --directory "$tmp_download_dir"
+  cp -p "${tmp_download_dir}/IBM_Cloud_CLI/ibmcloud" "${bin_install_path}"
+}
+
+get_tmp_dir() {
+  if [ "$TMPDIR" = "" ]; then
+    mktemp -d -t ibmcloud_XXXXXX
+  else
+    echo "$TMPDIR"
+  fi
+}
+
+get_download_url() {
+  local platform
+  [ "Linux" = "$(uname)" ] && platform="linux" || platform="osx"
+  local arch
+  [ "$platform" = "osx" ] && arch="" || \
+  ([ "x86_64" = "$(uname -m)" ] && arch="64" || arch="32")
+
+  echo "https://clis.ng.bluemix.net/download/bluemix-cli/${version}/${platform}${arch}/archive"
+}
+
+install "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
