@@ -17,7 +17,7 @@ install() {
   install_path=$3
   bin_install_path="$install_path/bin"
   binary_path="$bin_install_path/ibmcloud"
-  download_url="$(get_download_url)"
+  download_url="$(get_download_url "$version")"
   tmp_download_dir="$(get_tmp_dir)"
   download_path="$tmp_download_dir/ibmcloud_${ASDF_INSTALL_VERSION}.tgz"
 
@@ -36,7 +36,7 @@ install() {
 }
 
 get_tmp_dir() {
-  if [ "$TMPDIR" = "" ]; then
+  if [ "${TMPDIR:-}" = "" ]; then
     mktemp -d -t ibmcloud_XXXXXX
   else
     echo "$TMPDIR"
@@ -44,13 +44,18 @@ get_tmp_dir() {
 }
 
 get_download_url() {
-  local platform
+  local version platform arch
+  version="$1"
   [ "Linux" = "$(uname)" ] && platform="linux" || platform="osx"
-  local arch
-  [ "$platform" = "osx" ] && arch="" || \
-  ([ "x86_64" = "$(uname -m)" ] && arch="64" || arch="32")
+  if [ "$platform" = "osx" ]; then
+    arch=""
+  elif [ "x86_64" = "$(uname -m)" ]; then
+    arch="64"
+  else
+    arch="32"
+  fi
 
-  echo "https://clis.ng.bluemix.net/download/bluemix-cli/${version}/${platform}${arch}/archive"
+  echo "https://clis.ng.bluemix.net/download/bluemix-cli/${version}/${platform}${arch}"
 }
 
 install "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
