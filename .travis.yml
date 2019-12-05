@@ -1,8 +1,9 @@
-language: c
+language: shell
 before_script:
   - git clone https://github.com/asdf-vm/asdf.git
   - . asdf/asdf.sh
 script:
+  - bash -c 'shopt -s globstar nullglob; shellcheck bin/*'
   - asdf plugin-add ibmcloud ./
   - asdf list-all ibmcloud
   - asdf plugin-test ibmcloud ./ 'ibmcloud --version'

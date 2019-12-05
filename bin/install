@@ -7,7 +7,7 @@ set -euo pipefail
 [ -z "${ASDF_INSTALL_PATH+x}" ] && echo "ASDF_INSTALL_PATH is required" && exit 1
 
 install() {
-  local install_type version install_path bin_install_path binary_path \
+  local install_type version install_path bin_install_path \
     download_url tmp_download_dir download_path files
 
   install_type=$1
@@ -30,6 +30,7 @@ install() {
   rm -f "$bin_install_path/*" 2>/dev/null || true
 
   echo "Copying binaries"
+  # shellcheck disable=SC2046
   tar -zxf "${download_path}" --directory "$tmp_download_dir" $(tar_sub '/IBM_Cloud_CLI/Bluemix_CLI/')
   files=$(find "${tmp_download_dir}/Bluemix_CLI" -type f | grep -v install)
   for f in $files; do
