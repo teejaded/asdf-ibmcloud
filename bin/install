@@ -30,45 +30,16 @@ install() {
   rm -f "$bin_install_path/*" 2>/dev/null || true
 
   echo "Copying binaries"
-  extract_tar "${download_path}" "$tmp_download_dir"
+  tar -zxf "${download_path}" --directory "$tmp_download_dir" $(tar_sub '/IBM_Cloud_CLI/Bluemix_CLI/')
   files=$(find "${tmp_download_dir}/Bluemix_CLI" -type f | grep -v install)
   for f in $files; do
     cp -p "$f" "${bin_install_path}"
   done
 
   echo "Creating symlinks"
-  [ -f "${bin_install_path}/bluemix" ] && \
-    ln -sf "${bin_install_path}/bluemix" "${bin_install_path}/ibmcloud"
-  [ ! -f "${bin_install_path}/bluemix" ] && \
-    ln -sf "${bin_install_path}/ibmcloud" "${bin_install_path}/bluemix"
+  ln -sf "${bin_install_path}/ibmcloud" "${bin_install_path}/bluemix"
   ln -sf "${bin_install_path}/ibmcloud" "${bin_install_path}/bx"
   ln -sf "${bin_install_path}/ibmcloud" "${bin_install_path}/ic"
-}
-
-extract_tar() {
-  local download_path tmp_download_dir
-  download_path="$1"
-  tmp_download_dir="$2"
-
-  tar -zxf "${download_path}" \
-    --directory "$tmp_download_dir" \
-    $(tar_sub '/IBM_Cloud_CLI/Bluemix_CLI/')
-
-  # If this is a pkg try to extract it
-  extract_pkg "$tmp_download_dir/Bluemix_Command_Line_Interface.pkg"
-  extract_pkg "$tmp_download_dir/Command_Line_Interface.pkg"
-}
-
-extract_pkg() {
-  local pkg
-  pkg="$1"
-  [ ! -f "$pkg/Payload" ] && return 0
-  tar -zxf \
-    "$pkg/Payload" \
-    --directory "$tmp_download_dir" \
-    $(tar_sub ',usr\/local\/Bluemix,Bluemix_CLI,')
-
-  rm -rf "$pkg" 2>/dev/null || true
 }
 
 tar_sub() {
@@ -103,7 +74,7 @@ get_download_url() {
     arch="32"
   fi
 
-  echo "https://clis.ng.bluemix.net/download/bluemix-cli/${version}/${platform}${arch}"
+  echo "https://clis.ng.bluemix.net/download/bluemix-cli/${version}/${platform}${arch}/archive"
 }
 
 install "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
