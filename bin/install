@@ -75,7 +75,7 @@ get_download_url() {
     arch="32"
   fi
 
-  echo "https://clis.ng.bluemix.net/download/bluemix-cli/${version}/${platform}${arch}/archive"
+  echo "https://clis.cloud.ibm.com/download/bluemix-cli/${version}/${platform}${arch}/archive"
 }
 
 install "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
