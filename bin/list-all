@@ -21,4 +21,4 @@ function join() {
   awk '$1=$1' ORS=' '
 }
 
-eval "$cmd" | grep -oE "tag_name\": \".{1,15}\"," | sed 's/tag_name\": \"v//;s/\",//' | sort_versions | filter_versions | join
+eval "$cmd" | grep -oE "tag_name\": \".{1,15}\"," | sed 's/tag_name\": \"v//;s/\",//' | sort_versions | join
