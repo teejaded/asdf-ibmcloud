@@ -69,13 +69,15 @@ get_download_url() {
   is_linux && platform="linux" || platform="osx"
   if [ "$platform" = "osx" ]; then
     arch=""
+    platform="macos"
   elif [ "x86_64" = "$(uname -m)" ]; then
-    arch="64"
+    arch="_amd64"
   else
-    arch="32"
+    arch="_386"
   fi
 
-  echo "https://clis.cloud.ibm.com/download/bluemix-cli/${version}/${platform}${arch}/archive"
+  #echo "https://clis.cloud.ibm.com/download/bluemix-cli/${version}/${platform}${arch}/archive"
+  echo "https://download.clis.cloud.ibm.com/ibm-cloud-cli/${version}/binaries/IBM_Cloud_CLI_${version}_${platform}${arch}.tgz"
 }
 
 install "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
